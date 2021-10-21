@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Device;
 use Illuminate\Database\Seeder;
 
-class DatabaseSeeder extends Seeder
+class DeviceSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -13,9 +14,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call([
-            UserSeeder::class,
-            // DeviceSeeder::class,
-        ]);
+        Device::factory()
+            ->count(10)
+            ->create();
     }
 }

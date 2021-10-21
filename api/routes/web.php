@@ -16,3 +16,13 @@
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
+
+$router->group(['prefix'=>'api'], function () use ($router) {
+
+    $router->get('/devices', 'DeviceController@index');
+    $router->get('/devices/{id}', 'DeviceController@show');
+    $router->post('/devices', 'DeviceController@store');
+    $router->put('/devices', 'DeviceController@update');
+    $router->delete('/devices/{id}', 'DeviceController@destroy');
+
+});
