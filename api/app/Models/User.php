@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Device;
+use App\Models\Purchase;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Auth\Authenticatable;
 use Laravel\Lumen\Auth\Authorizable;
@@ -39,5 +40,13 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function devices()
     {
         return $this->hasMany(Device::class);
+    }
+
+    /**
+     * Get the purchases for the user.
+     */
+    public function purchases()
+    {
+        return $this->hasMany(Purchase::class);
     }
 }

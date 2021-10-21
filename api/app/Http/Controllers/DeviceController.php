@@ -7,6 +7,7 @@ use App\Models\Device;
 use App\Helpers\ApiResult;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class DeviceController extends Controller
 {
@@ -45,53 +46,53 @@ class DeviceController extends Controller
     public function store(Request $request)
     {
         try {
-            if (empty($request->device_uid) || empty($request->app_id) || empty($request->language) || !in_array($request->os, [0,1])) {
-                $result = new ApiResult(false, null, 'Client information loss.');
+            $validator = Validator::make($request->all(), [
+                // Device rules
+                'uid' => 'required|uuid',
+                'app_id' => 'required|uuid',
+                'language' => 'required|string|size:2',
+                'os' => 'required|digits_between:0,1',
+
+                // User rules
+                'name' => 'required|string|between:3,255',
+                'email' => 'required|email',
+                'password' => 'required|string|between:8,16',
+            ]);
+
+            if ($validator->fails()) {
+                $result = new ApiResult(false, null, 'Validation errors.', $validator->errors());
             }
             else {
-                if (empty($request->name) || empty($request->username) || empty($request->password)) {
-                    $result = new ApiResult(false, null, 'All the fields are required.');
+                $user = User::where('email', '=', $request->username)->first();
+                if (is_null($user)) {
+                    $user = new User();
+                    $user->name = $request->name;
+                    $user->email = $request->username;
+                    $user->password = Hash::make($request->password);
+                    $user->save();
                 }
-                else {
-                    if (!filter_var($request->username, FILTER_VALIDATE_EMAIL)) {
-                        $result = new ApiResult(false, null, 'You must enter a valid email.');
-                    }
 
-                    if (strlen($request->password) < 8) {
-                        $result = new ApiResult(false, null, 'The password must be min 8 character.');
-                    }
+                if (isset($user) && $user->id > 0) {
+                    $device = new Device();
+                    $device->device_uid = $request->device_uid;
+                    $device->app_id = $request->app_id;
+                    $device->language = $request->language;
+                    $device->os = $request->os;
+                    $device->user_id = $user->id;
 
-                    $user = User::where('email', '=', $request->username)->first();
-                    if (is_null($user)) {
-                        $user = new User();
-                        $user->name = $request->name;
-                        $user->email = $request->username;
-                        $user->password = Hash::make($request->password);
-                        $user->save();
-                    }
-
-                    if (isset($user) && $user->id > 0) {
-                        $device = new Device();
-                        $device->device_uid = $request->device_uid;
-                        $device->app_id = $request->app_id;
-                        $device->language = $request->language;
-                        $device->os = $request->os;
-                        $device->user_id = $user->id;
-
-                        if ($device->save()) {
-                            $result = new ApiResult(true, [
-                                "client_id"=> config('service.passport.password_'.($device->os == 0 ? 'ios' : 'android').'.client_id'), // $device->os: 0: ios, 1: android
-                                "client_secret"=> config('service.passport.password_'.($device->os == 0 ? 'ios' : 'android').'.client_secret'),
-                                "grant_type"=> config('service.passport.password_'.($device->os == 0 ? 'ios' : 'android').'.grant_type'),
-                            ], 'Device registered successfully.');
-                        }
-                        else {
-                            $result = new ApiResult(false, null, 'Something went wrong while registerring the device.');
-                        }
+                    if ($device->save()) {
+                        $result = new ApiResult(true, [
+                            "client_id"=> config('service.passport.password_'.($device->os == 0 ? 'ios' : 'google').'.client_id'), // $device->os: 0: ios, 1: google
+                            "client_secret"=> config('service.passport.password_'.($device->os == 0 ? 'ios' : 'google').'.client_secret'),
+                            "grant_type"=> config('service.passport.password_'.($device->os == 0 ? 'ios' : 'google').'.grant_type'),
+                        ], 'Device registered successfully.');
                     }
                     else {
-                        $result = new ApiResult(false, null, 'Something went wrong while registerring the user.');
+                        $result = new ApiResult(false, null, 'Something went wrong while registerring the device.');
                     }
+                }
+                else {
+                    $result = new ApiResult(false, null, 'Something went wrong while registerring the user.');
                 }
             }
         } catch (\Throwable $e) {
@@ -110,17 +111,30 @@ class DeviceController extends Controller
     public function update(Request $request, int $id)
     {
         try {
-            $device = Device::findOrFail($id);
-            $device->device_uid = $request->device_uid;
-            $device->app_id = $request->app_id;
-            $device->language = $request->language;
-            $device->os = $request->os;
+            $validator = Validator::make($request->all(), [
+                // Device rules
+                'uid' => 'required|uuid',
+                'app_id' => 'required|uuid',
+                'language' => 'required|string|size:2',
+                'os' => 'required|digits_between:0,1',
+            ]);
 
-            if ($device->save()) {
-                $result = new ApiResult(true, null, 'Device registeration updated successfully.');
+            if ($validator->fails()) {
+                $result = new ApiResult(false, null, 'Validation errors.', $validator->errors());
             }
             else {
-                $result = new ApiResult(false, null, 'Something went wrong while updating the device registeration.');
+                $device = Device::findOrFail($id);
+                $device->device_uid = $request->device_uid;
+                $device->app_id = $request->app_id;
+                $device->language = $request->language;
+                $device->os = $request->os;
+
+                if ($device->save()) {
+                    $result = new ApiResult(true, null, 'Device registeration updated successfully.');
+                }
+                else {
+                    $result = new ApiResult(false, null, 'Something went wrong while updating the device registeration.');
+                }
             }
         } catch (\Throwable $e) {
             $result = new ApiResult(false, null, $e->getMessage());

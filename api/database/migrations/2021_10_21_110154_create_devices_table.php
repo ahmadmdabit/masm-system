@@ -18,7 +18,7 @@ class CreateDevicesTable extends Migration
             $table->uuid('device_uid')->index('device_uid_ndx');
             $table->uuid('app_id')->index('app_id_ndx');
             $table->char('language', '2');
-            $table->tinyInteger('os', false, true); // 0: ios, 1: android
+            $table->tinyInteger('os', false, true); // 0: ios, 1: google
             $table->timestamps();
             $table->softDeletes();
         });
