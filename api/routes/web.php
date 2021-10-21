@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+
 /** @var \Laravel\Lumen\Routing\Router $router */
 
 /*
@@ -17,12 +19,20 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
+// Auth
+Route::post('/v1/oauth/logout', ['middleware' => ['auth'], 'uses' => 'AuthController@logout']);
+
 $router->group(['prefix'=>'api'], function () use ($router) {
 
-    $router->get('/devices', 'DeviceController@index');
-    $router->get('/devices/{id}', 'DeviceController@show');
-    $router->post('/devices', 'DeviceController@store');
-    $router->put('/devices', 'DeviceController@update');
-    $router->delete('/devices/{id}', 'DeviceController@destroy');
+    $router->group(['middleware'=>'auth'], function () use ($router) {
+
+        // Devices
+        $router->get('/devices', 'DeviceController@index');
+        $router->get('/devices/{id}', 'DeviceController@show');
+        $router->post('/devices', 'DeviceController@store');
+        $router->put('/devices', 'DeviceController@update');
+        $router->delete('/devices/{id}', 'DeviceController@destroy');
+
+    });
 
 });
