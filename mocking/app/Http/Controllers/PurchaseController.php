@@ -45,8 +45,12 @@ class PurchaseController extends Controller
             return [ 'data' => null, 'status' => false, 'message' => 'Validation errors.', 'errors' => $validator->errors() ];
         }
         else {
-            $lastChar = substr(((String)$request->receipt), -1);
+            $lastTwoChar = substr(((String)$request->receipt), -2);
+            if (str_contains($lastTwoChar, '6')) {
+                return [ 'data' => [ 'error_code' => 429 ], 'status' => false, 'message' => 'Rate limit error.' ];
+            }
 
+            $lastChar = substr(((String)$request->receipt), -1);
             if (is_numeric($lastChar) && $lastChar % 2) {
                 $now = new DateTime();
                 $expire_date = $now->modify('+'.rand(1,3).' month')->format('Y-m-d H:i:s');

@@ -79,6 +79,7 @@ class PurchaseController extends Controller
                         $purchase->status = $verificationResult['status'];
                         $purchase->expire_date = $verificationResult['expire_date'];
                         $purchase->state = $verificationResult['status'] ? 0 : null; // state: 0 started
+                        $purchase->is_rate_limit = !$verificationResult['status'] && !is_null($verificationResult['data']) && $verificationResult['data']['error_code'] == 429;
                         if ($purchase->save()) {
                             $result = new ApiResult(true, null, 'Purchase saved successfully.');
                         }
@@ -95,6 +96,7 @@ class PurchaseController extends Controller
                             $purchase->status = $verificationResult['status'];
                             $purchase->expire_date = $verificationResult['expire_date'];
                             $purchase->state = $verificationResult['status'] ? 1 : null; // state: 1 renewed
+                            $purchase->is_rate_limit = !$verificationResult['status'] && !is_null($verificationResult['data']) && $verificationResult['data']['error_code'] == 429;
                             if ($purchase->save()) {
                                 $result = new ApiResult(true, null, 'Purchase updated successfully.');
                             }
