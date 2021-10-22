@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         \App\Console\Commands\ExpirationWorker::class,
+        \App\Console\Commands\RateLimitationWorker::class,
     ];
 
     /**
@@ -25,5 +26,6 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command(ExpirationWorker::class)->hourly();
+        $schedule->command(RateLimitationWorker::class)->hourly();
     }
 }
