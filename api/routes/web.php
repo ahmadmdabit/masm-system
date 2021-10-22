@@ -23,6 +23,8 @@ $router->get('/', function () use ($router) {
 // Route::post('/api/oauth/logout', ['middleware' => ['auth'], 'uses' => 'AuthController@logout']);
 
 $router->group(['prefix'=>'api'], function () use ($router) {
+    // Device register
+    $router->post('/devices', 'DeviceController@store');
 
     $router->group(['middleware'=>'auth'], function () use ($router) {
 
@@ -31,17 +33,17 @@ $router->group(['prefix'=>'api'], function () use ($router) {
 
         // Devices
         $router->get('/devices', 'DeviceController@index');
-        $router->get('/devices/{id}', 'DeviceController@show');
-        $router->post('/devices', 'DeviceController@store');
+        $router->get('/devices/{id:[0-9]+}', 'DeviceController@show');
         $router->put('/devices', 'DeviceController@update');
-        $router->delete('/devices/{id}', 'DeviceController@destroy');
+        $router->delete('/devices/{id:[0-9]+}', 'DeviceController@destroy');
 
         // Purchases
         $router->get('/purchases', 'PurchaseController@index');
-        $router->get('/purchases/{id?}', 'PurchaseController@show');
+        $router->get('/purchases/{id:[0-9]+}', 'PurchaseController@show');
+        $router->get('/purchases/check', 'PurchaseController@show');
         $router->post('/purchases', 'PurchaseController@store');
         $router->put('/purchases', 'PurchaseController@update');
-        $router->delete('/purchases/{id}', 'PurchaseController@destroy');
+        $router->delete('/purchases/{id:[0-9]+}', 'PurchaseController@destroy');
 
     });
 

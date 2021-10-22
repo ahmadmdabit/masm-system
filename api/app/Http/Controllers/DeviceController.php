@@ -48,14 +48,14 @@ class DeviceController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 // Device rules
-                'uid' => 'required|uuid',
+                'device_uid' => 'required|uuid',
                 'app_id' => 'required|uuid',
                 'language' => 'required|string|size:2',
                 'os' => 'required|digits_between:0,1',
 
                 // User rules
                 'name' => 'required|string|between:3,255',
-                'email' => 'required|email',
+                'username' => 'required|email',
                 'password' => 'required|string|between:8,16',
             ]);
 

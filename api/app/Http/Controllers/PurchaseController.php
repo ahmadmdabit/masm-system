@@ -34,7 +34,8 @@ class PurchaseController extends Controller
     {
         try {
             if (is_null($id)) {
-                $result = new ApiResult(true, Purchase::where('user_id', auth()->user()->id)->where('status', 1)->first(), '');
+                $result = new ApiResult(true, Purchase::where('user_id', auth()->user()->id)->orderByDesc('id')->limit(1), '');
+                //->where('status', 1)
             }
             else {
                 $result = new ApiResult(true, Purchase::findOrFail($id), '');
@@ -79,7 +80,7 @@ class PurchaseController extends Controller
                         $purchase->status = $verificationResult['status'];
                         $purchase->expire_date = $verificationResult['expire_date'];
                         $purchase->state = $verificationResult['status'] ? 0 : null; // state: 0 started
-                        $purchase->is_rate_limit = !$verificationResult['status'] && !is_null($verificationResult['data']) && $verificationResult['data']['error_code'] == 429;
+                        $purchase->is_rate_limit = !$verificationResult['status'] && isset($verificationResult['data']) && $verificationResult['data']['error_code'] == 429;
                         if ($purchase->save()) {
                             $result = new ApiResult(true, null, 'Purchase saved successfully.');
                         }
@@ -96,7 +97,7 @@ class PurchaseController extends Controller
                             $purchase->status = $verificationResult['status'];
                             $purchase->expire_date = $verificationResult['expire_date'];
                             $purchase->state = $verificationResult['status'] ? 1 : null; // state: 1 renewed
-                            $purchase->is_rate_limit = !$verificationResult['status'] && !is_null($verificationResult['data']) && $verificationResult['data']['error_code'] == 429;
+                            $purchase->is_rate_limit = !$verificationResult['status'] && isset($verificationResult['data']) && $verificationResult['data']['error_code'] == 429;
                             if ($purchase->save()) {
                                 $result = new ApiResult(true, null, 'Purchase updated successfully.');
                             }
