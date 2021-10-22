@@ -16,10 +16,11 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        for ($ii=0; $ii < 10; $ii++) {
+        for ($ii=0; $ii < 1000000; $ii++) {
+            $rand = rand(1, 3);
             User::factory()
                 // ->count(10)
-                ->has(Device::factory()->count(rand(1, 3)))
+                ->has(Device::factory()->count($rand))
                 ->has(Purchase::factory()->count(1))
                 ->create();
         }

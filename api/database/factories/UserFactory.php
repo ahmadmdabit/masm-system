@@ -23,7 +23,7 @@ class UserFactory extends Factory
     {
         return [
             'name' => $this->faker->name,
-            'email' => $this->faker->unique()->safeEmail,
+            'email' => $this->faker->regexify('[a-z]{3}') .'.'. $this->faker->unique()->safeEmail,
             'password' => app('hash')->make('123456789'),
         ];
     }
