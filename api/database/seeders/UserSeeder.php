@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        for ($ii=0; $ii < 1000000; $ii++) {
+        for ($ii=0; $ii < 100; $ii++) {
             $rand = rand(1, 3);
             User::factory()
                 // ->count(10)
